@@ -1,5 +1,29 @@
 document.body.onload = addElementosGeral
 
+function newFracao(n=0, d=1) {
+    var fracao = {}
+    
+    var num = mdc(n, d)
+    fracao.numerador = n / num
+    fracao.denominador = d / num
+
+    if(fracao.denominador < 0) {
+        fracao.numerador = -fracao.numerador
+        fracao.denominador = -fracao.denominador
+    }
+
+    return fracao
+}
+
+function mdc(num1, num2) {
+    if(num1 % num2 == 0) {
+        return num2
+    }
+    else {
+        return mdc(num2, num1 % num2)
+    }
+}
+
 function criaNovaMatriz(linha, coluna) {
     var mat = {}
     mat.linha = linha
@@ -9,7 +33,7 @@ function criaNovaMatriz(linha, coluna) {
     for(var i = 0; i < mat.linha; i++) {
         mat.matriz[i] = []
         for(var j = 0; j < mat.coluna; j++) {
-            mat.matriz[i][j] = 0
+            mat.matriz[i][j] = newFracao(0, 1)
         }
     }
 
@@ -138,62 +162,36 @@ function diminiu(mat, char) {
     }
 }
 
-function textNum(text) {
-    numerador = ''
-    denominador = ''
-
-    var i
-    for(i = 0; text[i] != '/'; i++) {
-        numerador += text[i]
-        
-        if(text[i] == '.') {
-            return text
-        }
+function textFracao(text) {
+    if(text.search('/') != -1) {
+        var n = text.substring(0, text.search('/'))
+        var d = text.substring(text.search('/') + 1, text.length)
+        return text = newFracao(Number(n), Number(d))
     }
-
-    var j
-    for(j = i + 1; text[j] != null; j++) {
-        denominador += text[j]
-    }
-
-    text = Number(numerador) / Number(denominador)
-
-    return text
-}
-
-function numText(num) {
-    if(Number.isInteger(num)) {
-        return num
-    }
-    else {
-        var controle = 0
-        if(num < 0) {
-            num = - num
-            controle = 1
-        }
-        
+    else if(text.search('.') != -1) {
         for(var i = 0; i < 1000; i++) {
             for(var j = 1; j < 1000; j++) {
-                if((i/j).toFixed(14) == num.toFixed(14)) {
-                    if(i == 0) {
-                        return 0
-                    }
-                    else if(i == j) {
-                        return 1
-                    }
-                    if(controle == 1) {
-                        var num = `-${i}/${j}`
-                    }
-                    else {
-                        var num = `${i}/${j}`
-                    }
-                    return num
+                if((i/j) == Number(text)) {
+                    return text = newFracao(i, j)
+                }
+                if((-i/j) == Number(text)) {
+                    return text = newFracao(-i, j)
                 }
             }
         }
-
-        return num
     }
+    return text = newFracao(0, 1)
+}
+
+function fracaoText(num) {
+    var text = ''
+    text += num.numerador
+    
+    if(num.denominador != 1 && num.numerador != 0) {
+        text += '/' + num.denominador
+    }
+    
+    return text
 }
 
 function recebeElementosGeral(char) {
@@ -214,19 +212,17 @@ function recebeElementos(mat, char) {
 
             // verifica se o valor do <input> é vazio 
             if(num == ''){
-                mat.matriz[i][j] = 0
+                mat.matriz[i][j] = newFracao(0, 1)
             }
             
             else {
-                // verifica se o valor é inteiro
-                if(Number.isInteger(Number(num))) {
-                    mat.matriz[i][j] = Number(num)
+                if(Number.isInteger(num)) {
+                    num = newFracao(Number(text), 1)
                 }
-                // se for fração a função textNum() transforma em float
                 else {
-                    num = textNum(num)
-                    mat.matriz[i][j] = Number(num)
+                    num = textFracao(num)
                 }
+                mat.matriz[i][j] = num
             }
         }
     }
@@ -244,9 +240,9 @@ function showMatriz(mat, char) {
 
         for(var j = 0; j < mat.coluna; j++) {
            var inputNovo = document.createElement('input')
-           inputNovo.setAttribute('class', 'elemento-Matriz')
+           inputNovo.setAttribute('class', 'elemento-Matriz-Resultado')
            inputNovo.setAttribute('id', `elemento-${i}-${j}-resultado-${res}-${char}`)
-           var num = numText(mat.matriz[i][j])
+           var num = fracaoText(mat.matriz[i][j])
            inputNovo.setAttribute('value', `${num}`)
 
            divLinha.appendChild(inputNovo)
@@ -287,6 +283,31 @@ function insereA(linha, coluna, res) {
     }
 }
 
+function criaBotões(R) {
+    var divNova = document.getElementById(`resultados-${res}`)
+    
+    var inputNovo = document.createElement('input')
+    inputNovo.setAttribute('class', 'botão-resposta')
+    inputNovo.setAttribute('type', 'button')
+    inputNovo.setAttribute('value', 'limpar')
+    inputNovo.setAttribute('onclick', `limpar(${res})`)
+    divNova.appendChild(inputNovo)
+
+    var inputNovo = document.createElement('input')
+    inputNovo.setAttribute('class', 'botão-resposta')
+    inputNovo.setAttribute('type', 'button')
+    inputNovo.setAttribute('value', 'insere A')
+    inputNovo.setAttribute('onclick', `insereA(${R.linha}, ${R.coluna}, ${res})`)
+    divNova.appendChild(inputNovo)
+
+    var inputNovo = document.createElement('input')
+    inputNovo.setAttribute('class', 'botão-resposta')
+    inputNovo.setAttribute('type', 'button')
+    inputNovo.setAttribute('value', 'insere B')
+    inputNovo.setAttribute('onclick', `insereB(${R.linha}, ${R.coluna}, ${res})`)
+    divNova.appendChild(inputNovo)
+}
+
 function insereB(linha, coluna, res) {
     while(B.linha != linha) {
         if(linha > B.linha) {
@@ -320,64 +341,52 @@ function somaGeral(char) {
     var elemento = document.getElementById(`num-Soma-${char}`)
     var num = elemento.value
 
-    if(Number.isInteger(Number(num))) {
-        num = Number(num)
-    }
-    else {
-        num = textNum(num)
-        num = Number(num)
-    }
+    num = textFracao(num)
     
     if(char == 'A') {
         showMatriz(A, 'A')
-        R = soma(A, num)
+        R = somaM(A, num)
     }
     else if(char == 'B') {
         showMatriz(B, 'B')
-        R= soma(B, num)
+        R= somaM(B, num)
     }
     
     var span = document.createElement('span')
-    if(num >= 0) {
-        span.innerHTML = ` +${numText(num)} = `
+    if(num.numerador >= 0) {
+        span.innerHTML = ` +${fracaoText(num)} = `
     }
     else {
-        span.innerHTML = `  ${numText(num)} = `
+        span.innerHTML = `  ${fracaoText(num)} = `
     }
     divNova.appendChild(span)
     
     showMatriz(R, 'R')
-
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'limpar')
-    inputNovo.setAttribute('onclick', `limpar(${res})`)
-    divNova.appendChild(inputNovo)
-
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'insere A')
-    inputNovo.setAttribute('onclick', `insereA(${R.linha}, ${R.coluna}, ${res})`)
-    divNova.appendChild(inputNovo)
-
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'insere B')
-    inputNovo.setAttribute('onclick', `insereB(${R.linha}, ${R.coluna}, ${res})`)
-    divNova.appendChild(inputNovo)
+    criaBotões(R)
     
     res += 1
 }
 
-function soma(mat, num) {
+function somaF(f1, f2) {
+    if(f1.denominador == f2.denominador) {
+        var n = f1.numerador + f2.numerador
+        var d = f1.denominador
+    }
+    else {
+        var n = (f1.numerador * f2.denominador) + (f1.denominador * f2.numerador)
+        var d = f1.denominador * f2.denominador
+    }
+
+    var f3 = newFracao(n, d)
+    return f3
+}
+
+function somaM(mat, num) {
     var resposta = criaNovaMatriz(mat.linha, mat.coluna)
     
     for(var i = 0; i < mat.linha; i++) {
         for(var j = 0; j < mat.coluna; j++) {
-           resposta.matriz[i][j] = mat.matriz[i][j] + num
+           resposta.matriz[i][j] = somaF(mat.matriz[i][j], num)
         }
     }
 
@@ -397,64 +406,46 @@ function multiplicaGeral(char) {
     var elemento = document.getElementById(`num-Mult-${char}`)
     var num = elemento.value
 
-    if(Number.isInteger(Number(num))) {
-        num = Number(num)
-    }
-    else {
-        num = textNum(num)
-        num = Number(num)
-    }
+    num = textFracao(num)
     
     if(char == 'A') {
         showMatriz(A, 'A')
-        R = multiplica(A, num)
+        R = multiplicaM(A, num)
     }
     else if(char == 'B') {
         showMatriz(B, 'B')
-        R = multiplica(B, num)
+        R = multiplicaM(B, num)
     }
     
     var span = document.createElement('span')
     if(num >= 0) {
-        span.innerHTML = ` x ${numText(num)} = `
+        span.innerHTML = ` x ${fracaoText(num)} = `
     }
     else {
-        span.innerHTML = ` x (${numText(num)}) = `
+        span.innerHTML = ` x (${fracaoText(num)}) = `
     }
     divNova.appendChild(span)
     
     showMatriz(R, 'R')
-
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'limpar')
-    inputNovo.setAttribute('onclick', `limpar(${res})`)
-    divNova.appendChild(inputNovo)
+    criaBotões(R)
     
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'insere A')
-    inputNovo.setAttribute('onclick', `insereA(${R.linha}, ${R.coluna}, ${res})`)
-    divNova.appendChild(inputNovo)
-
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'insere B')
-    inputNovo.setAttribute('onclick', `insereB(${R.linha}, ${R.coluna}, ${res})`)
-    divNova.appendChild(inputNovo)
-
     res += 1
 }
 
-function multiplica(mat, num) {
+function multiplicaF(f1, f2) {
+    var n = f1.numerador * f2.numerador
+    var d = f1.denominador * f2.denominador
+
+    var f3 = newFracao(n, d)
+    return f3
+}
+
+function multiplicaM(mat, num) {
     var resposta = criaNovaMatriz(mat.linha, mat.coluna)
     
     for(var i = 0; i < mat.linha; i++) {
         for(var j = 0; j < mat.coluna; j++) {
-           resposta.matriz[i][j] = mat.matriz[i][j] * num
+           resposta.matriz[i][j] = multiplicaF(mat.matriz[i][j], num)
         }
     }
 
@@ -481,7 +472,7 @@ function determinanteGeral(char) {
     }
     
     var span = document.createElement('span')
-    span.innerHTML = ` = ${numText(det)}  `
+    span.innerHTML = ` = ${fracaoText(det)}  `
 
     divNova.appendChild(span)
 
@@ -495,17 +486,33 @@ function determinanteGeral(char) {
     res += 1
 }
 
+function subtraiF(f1, f2) {
+    if(f1.denominador == f2.denominador) {
+        var n = f1.numerador - f2.numerador
+        var d = f1.denominador
+    }
+    else {
+        var n = (f1.numerador * f2.denominador) - (f1.denominador * f2.numerador)
+        var d = f1.denominador * f2.denominador
+    }
+
+    var f3 = newFracao(n, d)
+    return f3
+}
+
 function determinante(mat) {
     if(mat.linha == mat.coluna) {
-        var det = 0
+        var det = newFracao(0, 1)
         
         if(mat.linha == 2) {
-            det = mat.matriz[0][0] * mat.matriz[1][1] - mat.matriz[0][1] * mat.matriz[1][0]
+            var f1 = multiplicaF(mat.matriz[0][0], mat.matriz[1][1]) 
+            var f2 = multiplicaF(mat.matriz[0][1], mat.matriz[1][0])
+            det = subtraiF(f1, f2)
         }
         
         else {
             var nova = criaNovaMatriz(mat.linha -1, mat.coluna -1)
-            var exp
+            var exp 
 
             for(var k = 0; k < mat.coluna; k++) {
                 var m = 0
@@ -524,15 +531,18 @@ function determinante(mat) {
                 }
                 
                 if(k % 2 == 0) {
-                    exp = 1
+                    exp = newFracao(1, 1)
                 }
                 else {
-                    exp = -1
+                    exp = newFracao(-1, 1)
                 }
-                det += mat.matriz[0][k] * exp * determinante(nova)
+                var f3 = multiplicaF(mat.matriz[0][k], exp)
+                var f4 = determinante(nova)
+                var f5 = multiplicaF(f3, f4)
+                det = somaF(det, f5)
             }
         }
-    
+
         return det
     }
 }
@@ -562,27 +572,7 @@ function transpostaGeral(char) {
     divNova.appendChild(span)
 
     showMatriz(R, 'R')
-
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'limpar')
-    inputNovo.setAttribute('onclick', `limpar(${res})`)
-    divNova.appendChild(inputNovo)
-    
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'insere A')
-    inputNovo.setAttribute('onclick', `insereA(${R.linha}, ${R.coluna}, ${res})`)
-    divNova.appendChild(inputNovo)
-
-    var inputNovo = document.createElement('input')
-    inputNovo.setAttribute('class', 'botão-resposta')
-    inputNovo.setAttribute('type', 'button')
-    inputNovo.setAttribute('value', 'insere B')
-    inputNovo.setAttribute('onclick', `insereB(${R.linha}, ${R.coluna}, ${res})`)
-    divNova.appendChild(inputNovo)
+    criaBotões(R)
 
     res += 1
 }
@@ -609,7 +599,7 @@ function inversaGeral(char) {
         var det = determinante(B)
     }
     
-    if(det != 0){
+    if(det.numerador != 0){
 
         var divNova = document.createElement('div')
         divNova.setAttribute('class', 'resultados')
@@ -620,11 +610,11 @@ function inversaGeral(char) {
 
         if(char == 'A') {
             showMatriz(A, 'A')
-            R = inversa(A)
+            R = inversa(A, det)
         }
         else if(char == 'B') {
             showMatriz(B, 'B')
-            R = inversa(B)
+            R = inversa(B, det)
         }
         
         var span = document.createElement('span')
@@ -633,34 +623,19 @@ function inversaGeral(char) {
         divNova.appendChild(span)
 
         showMatriz(R, 'R')
-
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'limpar')
-        inputNovo.setAttribute('onclick', `limpar(${res})`)
-        divNova.appendChild(inputNovo)
-        
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'insere A')
-        inputNovo.setAttribute('onclick', `insereA(${R.linha}, ${R.coluna}, ${res})`)
-        divNova.appendChild(inputNovo)
-
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'insere B')
-        inputNovo.setAttribute('onclick', `insereB(${R.linha}, ${R.coluna}, ${res})`)
-        divNova.appendChild(inputNovo)
+        criaBotões(R)
 
         res += 1
     }
 }
 
-function inversa(mat) {
-    var det = determinante(mat)
+function inversa(mat, det1) {
+    if(det1.numerador > 0) {
+        var det2 = newFracao(det1.denominador, det1.numerador)
+    }
+    else {
+        var det2 = newFracao(-det1.denominador, -det1.numerador)
+    }
     var ad = adjunta(mat)
     
     if(mat.linha == 2) {
@@ -668,15 +643,15 @@ function inversa(mat) {
         var nova = criaNovaMatriz(2, 2)
 
         nova.matriz[0][0] = mat.matriz[1][1]
-        nova.matriz[0][1] = - mat.matriz[0][1]
-        nova.matriz[1][0] = - mat.matriz[1][0]
+        nova.matriz[0][1] = newFracao(-mat.matriz[0][1].numerador, mat.matriz[0][1].denominador)
+        nova.matriz[1][0] = newFracao(-mat.matriz[1][0].numerador, mat.matriz[1][0].denominador)
         nova.matriz[1][1] = mat.matriz[0][0]
 
-        var resultado = multiplica(nova, 1/det)
+        var resultado = multiplicaM(nova, det2)
     }
     
     else {
-        var resultado = multiplica(ad, 1/det)
+        var resultado = multiplicaM(ad, det2)
     }
 
     return resultado
@@ -690,18 +665,18 @@ function adjunta(mat) {
         
         auxiliar = criaNovaMatriz(mat.linha - 1, mat.coluna - 1)
         
-        var exp = 0;
+        var exp
         
         for(var i = 0; i < mat.linha; i++) {
             
             for(var j = 0; j < mat.coluna; j++) {
                 
-                var k = 0;
+                var k = 0
                 
                 for(var m = 0; m < mat.linha; m++) {
                     
-                    var l = 0;
-                    var controle = 0;
+                    var l = 0
+                    var controle = 0
                     
                     for(var n = 0; n < mat.coluna; n++) {
                         
@@ -709,24 +684,24 @@ function adjunta(mat) {
                             
                             auxiliar.matriz[k][l] = mat.matriz[m][n];
                             
-                            l += 1;
-                            controle = 1;
+                            l += 1
+                            controle = 1
                         }
                     }
                     
                     if(controle == 1) {
-                        k += 1;
+                        k += 1
                     }
                 }
                 
                 if((i + j) % 2 == 0) {
-                    exp = 1;
+                    exp = newFracao(1, 1)
                 }
                 else {
-                    exp = -1;
+                    exp = newFracao(-1, 1)
                 }
             
-                nova.matriz[i][j] = exp * determinante(auxiliar); 
+                nova.matriz[i][j] = multiplicaF(exp, determinante(auxiliar))
             }
         }
     }
@@ -752,10 +727,10 @@ function somaMatrizes(char) {
         for(var i = 0; i < R.linha; i++) {
             for(var j = 0; j < R.coluna; j++) {
                 if(char == '+') {
-                    R.matriz[i][j] = A.matriz[i][j] + B.matriz[i][j]
+                    R.matriz[i][j] = somaF(A.matriz[i][j], B.matriz[i][j])
                 }
                 else if(char == '-') {
-                    R.matriz[i][j] = A.matriz[i][j] - B.matriz[i][j]
+                    R.matriz[i][j] = subtraiF(A.matriz[i][j], B.matriz[i][j])
                 }
             }
         }
@@ -773,27 +748,7 @@ function somaMatrizes(char) {
         divNova.appendChild(span)
 
         showMatriz(R, 'R')
-
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'limpar')
-        inputNovo.setAttribute('onclick', `limpar(${res})`)
-        divNova.appendChild(inputNovo)
-        
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'insere A')
-        inputNovo.setAttribute('onclick', `insereA(${R.linha}, ${R.coluna}, ${res})`)
-        divNova.appendChild(inputNovo)
-
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'insere B')
-        inputNovo.setAttribute('onclick', `insereB(${R.linha}, ${R.coluna}, ${res})`)
-        divNova.appendChild(inputNovo)
+        criaBotões(R)
 
         res += 1
     }
@@ -817,14 +772,15 @@ function multiplicaMatrizes() {
 				
             for(var j = 0; j < B.coluna; j++) {
                 
-                var soma = 0;
+                var soma = newFracao(0, 1);
                 
                 for(var k = 0; k < A.coluna; k++) {
                     
-                    soma += A.matriz[i][k] * B.matriz[k][j];
+                    var f1 = multiplicaF(A.matriz[i][k], B.matriz[k][j])
+                    soma = somaF(soma, f1)
                 }
             
-                R.matriz[i][j] = soma;
+                R.matriz[i][j] = soma
             }
         }
         
@@ -841,27 +797,7 @@ function multiplicaMatrizes() {
         divNova.appendChild(span)
 
         showMatriz(R, 'R')
-
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'limpar')
-        inputNovo.setAttribute('onclick', `limpar(${res})`)
-        divNova.appendChild(inputNovo)
-        
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'insere A')
-        inputNovo.setAttribute('onclick', `insereA(${R.linha}, ${R.coluna}, ${res})`)
-        divNova.appendChild(inputNovo)
-
-        var inputNovo = document.createElement('input')
-        inputNovo.setAttribute('class', 'botão-resposta')
-        inputNovo.setAttribute('type', 'button')
-        inputNovo.setAttribute('value', 'insere B')
-        inputNovo.setAttribute('onclick', `insereB(${R.linha}, ${R.coluna}, ${res})`)
-        divNova.appendChild(inputNovo)
+        criaBotões(R)
         
         res += 1
     }

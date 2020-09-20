@@ -1,6 +1,16 @@
 body {
     font: normal 20px Arial;
-    background: #355c7d;
+    background: #2e699c;
+}
+
+section {
+    background: white;
+    margin: auto;
+    border-radius: 5px;
+    padding: 10px;
+    width: fit-content;
+    box-shadow: -5px 5px black;
+    text-align: center;
 }
 
 .generico {
@@ -13,8 +23,8 @@ body {
     text-align: center;
 }
 
-section {
-    text-align: center;
+a {
+    color: black;
 }
 
 div#operações-A {
@@ -31,16 +41,6 @@ div#operações-B {
     display: inline-block; 
     width: 100px;
     text-align: center;
-}
-
-section {
-    background: white;
-    margin: auto;
-    border-radius: 5px;
-    padding: 10px;
-    width: fit-content;
-    box-shadow: -5px 5px black;
-
 }
 
 .box {
@@ -65,10 +65,10 @@ section {
 .box-Matriz-Resultados {
     display: inline-block;
     margin: 5px;
-    padding: 2px;
+    padding: 5px;
     border-radius: 5px;
     border: 2px solid black;
-    width: max-content;
+    width: fit-content;
     text-align: center;
 }
 
@@ -110,7 +110,15 @@ section {
 
 .elemento-Matriz {
     width: 50px;
-    overflow-x: scroll;
+    height: 20px;
+    padding: 5px;
+    border: solid;
+    margin: 2px;
+    text-align: center;
+}
+
+.elemento-Matriz-Resultado {
+    width: 70px;
     height: 20px;
     padding: 5px;
     border: solid;
