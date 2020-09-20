@@ -8,22 +8,58 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header><h1 class="generico">Ainda não é nada</h1></header>
+    <header><h1 class="generico">Mini Calc Matriz</h1></header>
     
-    <section id="sec">
-        <div id="div-10"> 
-            <input type="button" value="+" onclick="aumenta()">
-            <input type="button" value="-" onclick="diminiu()">
+    <section>
+       <div class="box" id="box-Geral-A">
+            <div class="box-Matriz", id="box-A"> 
+                <div  id="botões-A"> 
+                    <input class="botão" type="button" value="+" onclick="aumentaGeral('A')">
+                    <input class="botão" type="button" value="-" onclick="diminiuGeral('A')">
+                </div>
+            </div>
+            <div id="operações-A">
+                <div>
+                    <input class="botão" type="button" value="somar" onclick="somaGeral('A')"> <input type="text" class="elemento-Func" id="num-Soma-A">
+                    <input class="botão" type="button" value="multiplicar" onclick="multiplicaGeral('A')"> <input type="text" class="elemento-Func" id="num-Mult-A">
+                    <input class="botão" type="button" value="determinate" onclick="determinanteGeral('A')">
+                    <input class="botão" type="button" value="transposta" onclick="transpostaGeral('A')">
+                    <input class="botão" type="button" value="inversa" onclick="inversaGeral('A')">
+                </div>
+            </div>
         </div>
-        <div id="div-11">
-            <input type="button" value="somar" onclick="somar()"> <input type="text" class="elemento-Func" id="num-Soma">
-            <input type="button" value="multiplicar" onclick="multiplicar()"> <input type="text" class="elemento-Func" id="num-Mult">
+        
+        <div class="box-função" id="operações-A-B"> 
+            <input class="botão" type="button" value="A + B" onclick="somaMatrizes('+')">
+            <input class="botão" type="button" value="A - B" onclick="somaMatrizes('-')">
+            <input class="botão" type="button" value="A x B" onclick="multiplicaMatrizes()">    
         </div>
-        <div id="div-12"></div>
+
+        <div class="box" id="box-Geral-B">
+            <div class="box-Matriz" id="box-B">
+                <div id="botões-B"> 
+                    <input class="botão" type="button" value="+" onclick="aumentaGeral('B')">
+                    <input class="botão" type="button" value="-" onclick="diminiuGeral('B')">
+                </div>
+            </div>
+            <div id="operações-B">
+                <div>
+                    <input class="botão" type="button" value="somar" onclick="somaGeral('B')"> <input type="text" class="elemento-Func" id="num-Soma-B">
+                    <input class="botão" type="button" value="multiplicar" onclick="multiplicaGeral('B')"> <input type="text" class="elemento-Func" id="num-Mult-B">
+                    <input class="botão" type="button" value="determinate" onclick="determinanteGeral('B')">
+                    <input class="botão" type="button" value="transposta" onclick="transpostaGeral('B')">
+                    <input class="botão" type="button" value="inversa" onclick="inversaGeral('B')">
+                </div>
+            </div>
+        </div>
+        
+        <div class="box-Resultados" id="resultados">
+            <div id="final"></div>
+        </div>
     </section>
     
     <footer><p class="generico"><i>by goldin</i></p></footer>
 
-    <script src="script.js"></script>
+    <script  src="script.js"></script>
 </body>
 </html>
