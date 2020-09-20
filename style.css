@@ -1,0 +1,38 @@
+body {
+    font: normal 20px Arial;
+    background: #355c7d;
+}
+
+.generico {
+    background: white;
+    width: max-content;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: -5px 5px black;
+    margin: 5% auto;
+    text-align: center;
+}
+
+section {
+    background: white;
+    border-radius: 5px;
+    width: max-content;
+    height: max-content;
+    padding: 10px;
+    margin: auto;
+    text-align: center;
+    box-shadow: -5px 5px black;
+}
+
+.elemento-Matriz {
+    width: 50px;
+    padding: 5px;
+    border: solid;
+    margin: 2px;
+    text-align: center;
+}
+
+.elemento-Func {
+    width: 20px;
+    text-align: center;
+}
