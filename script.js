@@ -259,8 +259,6 @@ function limpar(char) {
     var divAtual = document.getElementById('resultados')
     var divRemovida = document.getElementById(`resultados-${char}`)
     divAtual.removeChild(divRemovida)
-
-    res += -1
 }
 
 function insereA(linha, coluna, res) {
